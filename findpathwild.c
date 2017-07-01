@@ -108,3 +108,33 @@ char* findPathWild(char* foundPath, char* wildPath)
 }
 
 
+char* findPathListWild(char* foundPathList, char* wildPathList)
+{
+    char lWildPathList[MAX_STR_LEN] = "";
+    char foundPath[MAX_STR_LEN] = "";
+    char* nextStr;
+    char* wildPath;
+    foundPathList[0] = 0;
+    strncpy(lWildPathList, wildPathList, MAX_STR_LEN - 1);
+    wildPath = lWildPathList;
+    while(1){
+        nextStr = splitStr(wildPath, ':');
+
+        if(0 == wildPath[0]) {
+            return foundPathList;
+        }
+
+        if(findPathWild(foundPath, wildPath)){
+            if(0 != foundPathList[0]) {
+                strncat(foundPathList, ":", MAX_STR_LEN - strlen(foundPathList) - 1);
+            }
+            strncat(foundPathList, foundPath, MAX_STR_LEN - strlen(foundPathList) - 1);
+        } 
+        wildPath = nextStr;
+    }
+    return NULL;
+}
+
+
+
+

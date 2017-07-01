@@ -11,6 +11,7 @@ char* getRootPath(char *rootPath, char *wildPath);
 char* splitStr(char* str, char delim);
 int cmpStrWild(char* inputStr, char* wildStr);
 char* findPathWild(char* foundPath, char* wildPath);
+char* findPathListWild(char* foundPathList, char* wildPathList);
 
 
 
