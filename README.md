@@ -49,7 +49,8 @@ int main(void)
 ```
 
 It can also handle lists of paths. Try te example below:
-```
+
+```c
 int main(void)
 {
     char resultPathList[MAX_STR_LEN] = "";
