@@ -30,12 +30,14 @@ This is a c program. You have to provide a char array to store the result string
 
 ```c
 #include "findpathwild.h"
+#include "stdio.h"
 
 int main(void) {
     char resultPath[MAX_STR_LEN] = "";
     char wildPath[] = "/???/???/nvidia-???/";
-    
-    if(NULL != findPathWild(resultPath, wild)) {
+    //char wildPath[] = "/not/existing/";
+
+    if(NULL != findPathWild(resultPath, wildPath)) {
         printf("found = %s\n", resultPath);
     } else {
         printf("not found\n");

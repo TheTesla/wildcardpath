@@ -5,19 +5,19 @@
  ***********************************************************************/
 
 #include "findpathwild.h"
+#include "stdio.h"
 
 int main(void) {
-    char path[MAX_STR_LEN] = "";
-    //char wild[] = "/usr/l??/nvidia-???/";
-    //char wild[] = "/usr/???/nvidia-???";
-    char wild[] = "/???/???/nvidia-???/";
-    //char wild[] = "/usr/src/nvidia-???/";
-    //char wild[] = "/usr/lib/nvidia-375/";
-    //char wild[] = "/usr/lib/nvidia-475/";
-    //char wild[] = "/usr/lib/nvidia-???/";
+    char resultPath[MAX_STR_LEN] = "";
+    char wildPath[] = "/???/???/nvidia-???/";
+    //char wildPath[] = "/not/existing/";
 
-
-    printf("found = %s\n", findPathWild(path, wild));
-
+    if(NULL != findPathWild(resultPath, wildPath)) {
+        printf("found = %s\n", resultPath);
+    } else {
+        printf("not found\n");
+    }
+    
     return 0;
 }
+
