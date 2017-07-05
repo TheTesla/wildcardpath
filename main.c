@@ -29,6 +29,24 @@ int main(void)
     } else {
         printf("not found\n");
     }
+  
+    char resultPathListDelim[MAX_STR_LEN] = "";
+    char wildPathListDelim[] = "/usr/lib/nvidia-???/xorg,/usr/lib/xorg/modules"; // sometimes comma separarted
+
+    if(NULL != findPathListWildDelim(resultPathListDelim, wildPathListDelim, ',')) {
+        printf("found = %s\n", resultPathListDelim);
+    } else {
+        printf("not found\n");
+    }
+
+    char foundDriver[MAX_STR_LEN];
+    char wildDriver[] = "nvidia_???_drm";
+
+    if(findDriverWild(foundDriver, wildDriver)) {
+        printf("found = %s\n", foundDriver); 
+    } else {
+        printf("not found\n");
+    }
     
     return 0;
 }

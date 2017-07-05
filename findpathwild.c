@@ -7,6 +7,11 @@
 #include "findpathwild.h"
 #include <dirent.h>
 #include <string.h>
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+#include <libgen.h>
+#include <sys/utsname.h>
 
 
 char* getRootPath(char *rootPath, char *wildPath)
@@ -108,17 +113,20 @@ char* findPathWild(char* foundPath, char* wildPath)
 }
 
 
-char* findPathListWild(char* foundPathList, char* wildPathList)
+char* findPathListWildDelim(char* foundPathList, char* wildPathList, char delim)
 {
     char lWildPathList[MAX_STR_LEN] = "";
     char foundPath[MAX_STR_LEN] = "";
     char* nextStr;
     char* wildPath;
+    char delimStr[2];
+    delimStr[0] = delim;
+    delimStr[1] = 0;
     foundPathList[0] = 0;
     strncpy(lWildPathList, wildPathList, MAX_STR_LEN - 1);
     wildPath = lWildPathList;
     while(1){
-        nextStr = splitStr(wildPath, ':');
+        nextStr = splitStr(wildPath, delim);
 
         if(0 == wildPath[0]) {
             return foundPathList;
@@ -126,7 +134,7 @@ char* findPathListWild(char* foundPathList, char* wildPathList)
 
         if(findPathWild(foundPath, wildPath)){
             if(0 != foundPathList[0]) {
-                strncat(foundPathList, ":", MAX_STR_LEN - strlen(foundPathList) - 1);
+                strncat(foundPathList, delimStr, MAX_STR_LEN - strlen(foundPathList) - 1);
             }
             strncat(foundPathList, foundPath, MAX_STR_LEN - strlen(foundPathList) - 1);
         } 
@@ -135,6 +143,61 @@ char* findPathListWild(char* foundPathList, char* wildPathList)
     return NULL;
 }
 
+char* findPathListWild(char* foundPathList, char* wildPathList)
+{
+    return findPathListWildDelim(foundPathList, wildPathList, ':');
+}
+
+char* findFileWild(char* foundDriver, char* fileNameWild, char* rootPath)
+{
+    DIR *dir;
+    struct dirent *ent;
+    char recursePath[MAX_STR_LEN];
+    char* ret;
+    if ((dir = opendir (rootPath)) != NULL) { 
+        while ((ent = readdir (dir)) != NULL) {  
+            if(0 == strcmp(ent->d_name, ".")) continue;
+            if(0 == strcmp(ent->d_name, "..")) continue;
+            strncpy(recursePath, rootPath, MAX_STR_LEN - 1);
+            strncat(recursePath, "/", MAX_STR_LEN - strlen(recursePath) - 1);
+            strncat(recursePath, ent->d_name, MAX_STR_LEN - strlen(recursePath) - 1);
+            if(NULL != (ret = findFileWild(foundDriver, fileNameWild, recursePath))) {
+                return ret;
+            }
+
+        }
+        closedir (dir);
+        return NULL;
+    } else { // can't open dir (is file or dir has not the right permissions)
+        struct stat s;
+        stat(rootPath, &s);
+        if(S_ISREG(s.st_mode)) { // is a file 
+            if(cmpStrWild(basename(rootPath), fileNameWild)) {
+                strncpy(foundDriver, basename(rootPath), MAX_STR_LEN - 1);
+                return rootPath;
+            }
+        }
+        return NULL;
+    }
+}
+
+char* findDriverWild(char* foundDriver, char* driverNameWild)
+{
+    struct utsname unameData;
+    char rootPath[MAX_STR_LEN];
+    char wild[MAX_STR_LEN];
+    char* ret;
+    if(uname(&unameData)) {
+        return NULL;
+    }
+    strncpy(rootPath, "/lib/modules/", MAX_STR_LEN - 1);
+    strncat(rootPath, unameData.release, MAX_STR_LEN - strlen(rootPath) - 1);
+    strncpy(wild, driverNameWild, MAX_STR_LEN - 1);
+    strncat(wild, ".ko", MAX_STR_LEN - strlen(wild) - 1);
+    ret = findFileWild(foundDriver, wild, rootPath);
+    foundDriver[strlen(foundDriver) - 3] = 0;
+    return ret;
+}
 
 
 
